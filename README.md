@@ -5,6 +5,7 @@
 
 # 요구 사항
 [Plugin]
+
 Skript 2.5.3 (필수)
 
 Vault, Essential or Iconomy - 돈기능. (선택)
