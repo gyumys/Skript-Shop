@@ -30,7 +30,7 @@ on unload:
 command /상점수표 [<text>] [<text>]:
 	permission: shop.point
 	trigger:
-		if arg 1 is "포인트종류":
+		if arg 1 is "포인트목록":
 			send "&b----------[ &f포인트종류 &b]----------"
 			loop {shop::point::*}:
 				send "{@s} %loop-index% - %loop-value%"
