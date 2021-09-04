@@ -7,8 +7,11 @@
 
 [개발환경]
 Java : Java 16 (OpenJDK 64-Bit Server VM 16.0.2+7)
+
 Bukkit : git-Paper-229 (MC1.17.1)
+
 Skript : 2.6-beta3
+
 Add-on : x
 
 Vault, Essential or Iconomy - 돈기능. (선택)
