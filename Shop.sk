@@ -7,7 +7,7 @@
 #Add-on : x
 
 #[Info]
-#Version : dev2
+#Version : dev3
 #Github:  https://github.com/gyumys/Skript-Shop
 
 #유튜브 : https://youtu.be/doDNDxrcswE
@@ -18,16 +18,16 @@ options:
 	a : &b[ &fSHOP &b]&f
 	s : &b[ &f수표 &b]&f
 	c : &1&2&3&1&r&f
-	c2 : %{shop.space}%                                                                                                                                            %{shop.space}%
+	c2 : &r%{shop::&::space}%                                                                                                                                            %{shop::&::space}%
 on load: #\m = %player%'s money, \u = uuid of %player%, \p  = %player%
-	set {shop.space} to " "
+	set {shop::&::space} to " "
 	set {shop::point::달러} to "\m"
 	set {shop::point::캐쉬} to "cash::\u"
 	set {shop::point::원} to "money::\p"
 on unload:
-	delete {shop.space}
+	delete {shop::&::*}
 	delete {shop::point::*}
-command /수표 [<text>] [<text>]:
+command /상점수표 [<text>] [<text>]:
 	permission: shop.point
 	trigger:
 		if arg 1 is "포인트종류":
@@ -95,8 +95,8 @@ function OpenShopSet(name: text,p: player):
 	set {_gui} to chest inventory with 1 rows named "{@a} 설정 {@c}- %{_name}%"
 	set slot 1 of {_gui} to paper named "&a아이템 설정" with lore "", "&f클릭시 아이템설정 창으로 이동합니다.", "&f아이템 설정창에 아이템을 올려두고 GUI를 닫으면 상점에" and "&f아이템이 등록됩니다."
 	set slot 3 of {_gui} to book named "&6GUI줄 설정" with lore "", "&a좌클릭시 GUI줄 크기를 증가시킵니다. ▲", "&c우클릭시 GUI줄 크기를 감소시킵니다. ▼", "&7최대값 : 6, 최소값: 1", "" and "&7현재 GUI줄 : &f%{shop::%{_name}%}%"
-	set slot 5 of {_gui} to sign item named "&bGUI이름 설정" with lore "&f클릭시 GUI이름 설정을 시작합니다.", "", "&7[ 현재이름 ]" and "&f%{shop.%{_name}%.name}%"
-	set slot 7 of {_gui} to nether star named "&e가격 설정" with lore "", "&f클릭시 가격설정 창으로 이동합니다.", "&fGUI가 열리며 가격을 설정하고싶은 아이템을 클릭하여" and "&f가격을 설정할 수 있습니다."
+	set slot 5 of {_gui} to sign item named "&bGUI이름 설정" with lore "&7[ 현재이름 ]", "&f%{shop::%{_name}%::name}%", "", "&f클릭시 GUI이름 설정을 시작합니다." and "&f설정 시작시 채팅창에 GUI이름을 입력하면 설정됩니다."
+	set slot 7 of {_gui} to nether star named "&e작업 설정" with lore "", "&f클릭시 작업설정 창으로 이동합니다.", "&fGUI가 열리며 작업을 설정하고싶은 아이템을 클릭하여" and "&f작업을 설정할 수 있습니다."
 	open {_gui} to {_p}
 function OpenShopItems(name: text,name2: text,p: player):
 	set {_gui} to chest inventory with {shop::%{_name}%} row with name "{@a} %{_name2}%"
@@ -111,10 +111,15 @@ function OpenShopDisplayItem(name:text,name2:text,p:player):
 			set slot loop-num - 1 of {_gui} to GetShopDisplayItem("%{_name}%","%loop-num - 1%" parsed as integer)
 	open {_gui} to {_p}
 function OpenShopPrice(name:text,slot:text,p:player):
-	set {_gui} to chest inventory with 1 row with name "{@a} 가격설정 {@c}- %{_name}% {@c}- %{_slot}%"
+	set {_gui} to chest inventory with 2 row with name "{@a} 아이템작업설정 {@c}- %{_name}% {@c}- %{_slot}%"
 	set slot 1 of {_gui} to paper named "&a구매가격 설정" with lore "", "&f클릭시 구매가격 설정 창으로 이동합니다.", "&f구매가격 설정창에 아이템을 올려두고 GUI를 닫으면 해당 아이템의" and "&f구매가격이 설정됩니다."
 	set slot 4 of {_gui} to paper named "&b판매가격 설정" with lore "", "&f클릭시 판매가격 설정 창으로 이동합니다.", "&f판매가격 설정창에 아이템을 올려두고 GUI를 닫으면 해당 아이템의" and "&f판매가격이 설정됩니다."
 	set slot 7 of {_gui} to book named "&6구매판매 설정 설명" with lore "", "&f구매나 판매가격창에 아이템을 넣으면 가격을 아이템으로 설정할 수 있고,", "&f수표를 넣으면 가격을 포인트로 설정할 수 있습니다.", "&f예를 들어 구매가격 설정창에 1000달러 수표를 넣으면" and "&f아이템의 구매비용이 1000달러가 됩니다."
+	set slot 10 of {_gui} to paper named "&c커맨드 설정" with lore "&f클릭시 커맨드 설정 창으로 이동합니다."
+	if {shop::%{_name}%::openshop.%{_slot}%} is not set:
+		set slot 13 of {_gui} to paper named "&e다른상점 열기" with lore "&7[ 현재 설정된 상점 &7]", "&f없음", "", "&f클릭시 설정을 시작합니다.", "&c쉬프트 클릭시 설정을 제거합니다.", "&f클릭후 채팅창에 이동하게할 상점의 이름을 입력하면" and "&f해당 아이템을 클릭했을때 그 상점으로 이동됩니다."
+	else:	
+		set slot 13 of {_gui} to paper named "&e다른상점 열기" with lore "&7[ 현재 설정된 상점 &7]", "&f%{shop::%{_name}%::openshop.%{_slot}%}%", "", "&f클릭시 설정을 시작합니다.", "&c쉬프트 클릭시 설정을 제거합니다.", "&f클릭후 채팅창에 이동하게할 상점의 이름을 입력하면" and "&f해당 아이템을 클릭했을때 그 상점으로 이동됩니다."
 	open {_gui} to {_p}
 function SellShopItem(name:text,slot:integer,amount:integer,p:player):
 	size of {shop::%{_name}%::price.sell::%{_slot}%::*} is not 0
@@ -153,7 +158,8 @@ function SellShopItem(name:text,slot:integer,amount:integer,p:player):
 					replace all "\u" with "%{_u}%" in {_t}
 					replace all "\p" with "%{_p}%" in {_t}				
 					add loop-value to {%{_t}%}
-			add {_item::*} to {_p}'s inventory
+			if {_item::*}	 is set:
+				add {_item::*} to {_p}'s inventory
 		else:
 			send "{@a} 아이템이 부족해 상품을 판매할 수 없습니다." to {_p}
 			play sound "entity.villager.no" with volume 1 with pitch 1 to {_p}
@@ -221,8 +227,19 @@ function BuyShopItem(name:text,slot:integer,amount:integer,p:player):
 				replace all "\u" with "%{_u}%" in {_t}
 				replace all "\p" with "%{_p}%" in {_t}				
 				remove loop-value from {%{_t}%}
-		remove {_item::*} from {_p}'s inventory			
-		
+		if {_item::*} is set:	
+			remove {_item::*} from {_p}'s inventory		
+function OpenCommandSet(name:text,slot:text,p:player):
+	set {_gui} to chest inventory with 6 rows named "{@a} 커맨드설정 {@c}- %{_name}% {@c}- %{_slot}%"
+	loop {shop::%{_name}%::command.%{_slot}%::*}:
+		set {_a::*} to loop-value split by "%nl%"
+		set slot "%loop-index%" parsed as integer - 1 of {_gui} to book named "&f%{_a::2}% &7[%{_a::1}%]" with lore "&f클릭시 커맨드를 수정합니다.", "&f우클릭시 권한을 변경합니다." and "&c쉬프트 클릭시 커맨드를 제거합니다."
+	set slot integers from 36 and 44 of {_gui} to dark gray stained glass pane
+	set slot 45 of {_gui} to player head item named "&6플레이어 커맨드 추가" with lore "&7명령어를 실행하는 플레이어의 권한의 커맨드를 추가합니다."
+	set slot 46 of {_gui} to any head item named "&7오피 커맨드 추가" with lore "&7오피 권한의 커맨드를 추가합니다."
+	set slot 47 of {_gui} to zombie head item named "&a콘솔 커맨드 추가" with lore "&7콘솔 권한의 커맨드를 추가합니다."
+	set slot 53 of {_gui} to book named "&b설명" with lore "&f명령어 내에 '\p'를 입력하면", "&f상점에서 아이템을 클릭한 플레이어의 이름으로 변환됩니다." and "&fex) '/say \p' -> '/say Gyumy' "
+	open {_gui} to {_p}
 command /상점 [<text>] [<text>] [<text>]:
 	permission: shop.set
 	aliases: shop
@@ -249,9 +266,6 @@ command /상점 [<text>] [<text>] [<text>]:
 			if {shop::%arg-2%} is set:
 				send "{@a} 이미 존재하는 상점 입니다."
 				stop			
-			if arg-2 contains "-":
-				send "{@a} 상점이름에는 '-'을 포함할 수 없습니다."
-				stop
 			if arg-2 contains "&":
 				send "{@a} 상점이름에는 '&'을 포함할 수 없습니다."
 				stop				
@@ -262,47 +276,53 @@ command /상점 [<text>] [<text>] [<text>]:
 			send "{@a} 상점이 존재하지 않습니다."
 			stop				
 		if arg 1 is "열기":
-			OpenShopDisplayItem(arg-2, "%{shop.%arg-2%.name}%{@c2}%arg-2%", player)
+			OpenShopDisplayItem(arg-2, "%{shop::%arg-2%::name}%{@c2}%arg-2%", player)
 		if arg 1 is "설정":
 			OpenShopSet("%arg-2%",player)
 			stop	
 		if arg 1 is "제거":
-			delete {shop.%arg-2%.name}
-			delete {shop::%arg-2%}
 			delete {shop::%arg-2%::*}
-			delete {shop::%arg-2%::item::*}
-			loop {shop::%arg-2%::price::*}:
-				delete {shop::%arg-2%::price::%loop-index%::*}
+			delete {shop::%arg-2%}
 			send "{@a} &6%arg-2% 상점이 제거되었습니다."
 on rightclick on entity:
 	if uncolored name of event-entity contains "[S]":
 		set {_name} to uncolored name of event-entity
 		replace all "[S]" and " " with "" in {_name}
-		OpenShopDisplayItem({_name}, "%{shop.%{_name}%.name}%{@c2}%{_name}%", player)
+		OpenShopDisplayItem({_name}, "%{shop::%{_name}%::name}%{@c2}%{_name}%", player)
 on inventory click:
 	if Inventory Action is nothing:
 		stop
+	set {_slot} to "%index of event-slot%"	
 	if name of player's top inventory contains "{@a}":
 		set {_n::*} to name of player's top inventory split by " {@c}- "
-		if name of player's top inventory contains "{@a} 아이템작업설정":
+		if name of player's top inventory contains "{@a} 작업아이템설정":
+			cancel event 
+			event-inventory is player's top inventory
+			OpenShopPrice({_n::2},{_slot},player)
+		else if name of player's top inventory contains "{@a} 아이템작업설정":
 			cancel event
 			event-inventory is player's top inventory
-			OpenShopPrice({_n::2},"%index of event-slot% ",player)			
-		else if name of player's top inventory contains "{@a} 가격설정":
-			cancel event
-			event-inventory is player's top inventory
-			set {_slot} to uncolored {_n::3}
-			replace all " " with "" in {_slot}
 			if index of event-slot is 1:
 				set {_gui} to chest inventory with 6 row with name "{@a} 구매가격설정 {@c}- %{_n::2}% {@c}- %{_n::3}%"
-				loop {shop::%{_n::2}%::price.buy::%{_slot}%::*}:
+				loop {shop::%{_n::2}%::price.buy::%{_n::3}%::*}:
 					add loop-value to {_gui}
 				open {_gui} to player
 			else if index of event-slot is 4:
 				set {_gui} to chest inventory with 6 row with name "{@a} 판매가격설정 {@c}- %{_n::2}% {@c}- %{_n::3}%"
-				loop {shop::%{_n::2}%::price.sell::%{_slot}%::*}:
+				loop {shop::%{_n::2}%::price.sell::%{_n::3}%::*}:
 					add loop-value to {_gui}
 				open {_gui} to player
+			else if index of event-slot is 10:
+				OpenCommandSet({_n::2},{_n::3},player)
+			else if index of event-slot is 13:
+				if "%click type%" contains "shift":
+					delete {shop::%{_n::2}%::openshop.%{_n::3}%}
+					OpenShopPrice({_n::2},"%{_n::3}% ",player)
+				else:
+					set {shop::&::openshop::%player%::*} to {_n::2} and "%{_n::3}%"
+					send "{@a} 채팅창에 상점의 이름을 입력하세요. '&c취소&f' 를 입력하면 입력이 취소됩니다." to player
+					wait a tick
+					close player's inventory
 		else if name of player's top inventory contains "{@a} 설정":
 			cancel event
 			event-inventory is player's top inventory
@@ -319,20 +339,73 @@ on inventory click:
 				OpenShopSet({_n::2},player)
 				stop
 			else if index of event-slot is 5:
-				send "{@a} 채탕창에 GUI의 이름을 입력하세요. '&c취소&f' 를 입력하면 입력이 취소됩니다."
-				set {shop.guiname.%player%} to {_n::2}
+				send "{@a} 채탕창에 GUI의 이름을 입력하세요. '&c취소&f' 를 입력하면 입력이 취소됩니다." to player
+				set {shop::&::guiname::%player%} to {_n::2}
 				wait a tick
 				close player's inventory
 			else if index of event-slot is 7:
-				OpenShopDisplayItem({_n::2}, "{@a} 아이템작업설정 {@c}- %{_n::2}%",player)
+				OpenShopDisplayItem({_n::2}, "{@a} 작업아이템설정 {@c}- %{_n::2}%",player)
+		else if name of player's top inventory contains "{@a} 커맨드설정":
+			cancel event
+			event-inventory is player's top inventory
+			if index of event-slot is 45:
+				set {shop::&::setcommand::%player%::*} to "player", {_n::2} and {_n::3}
+			else if index of event-slot is 46:
+				set {shop::&::setcommand::%player%::*} to "op", {_n::2} and {_n::3}
+			else if index of event-slot is 47:
+				set {shop::&::setcommand::%player%::*} to "console", {_n::2} and {_n::3}
+			else if event-item is dark gray stained glass pane:
+				stop	
+			else:
+				set {_a} to "%{shop::%{_n::2}%::command.%{_n::3}%::%index of event-slot + 1%}%"
+				set {_a::*} to {_a} split by "%nl%"
+				if click type is right mouse button:
+					if {_a::1} is "player":
+						set {shop::%{_n::2}%::command.%{_n::3}%::%index of event-slot + 1%} to "op%nl%%{_a::2}%"
+					else if {_a::1} is "op":
+						set {shop::%{_n::2}%::command.%{_n::3}%::%index of event-slot + 1%} to "console%nl%%{_a::2}%"
+					else if {_a::1} is "console":
+						set {shop::%{_n::2}%::command.%{_n::3}%::%index of event-slot + 1%} to "player%nl%%{_a::2}%"
+					set {_a} to "%{shop::%{_n::2}%::command.%{_n::3}%::%index of event-slot + 1%}%"
+					set {_a::*} to {_a} split by "%nl%"
+					send "{@a} 권한을 %{_a::1}%로 변경하였습니다."
+					OpenCommandSet({_n::2},{_n::3},player)
+					stop				
+				if "%click type%" contains "shift":
+					delete {shop::%{_n::2}%::command.%{_n::3}%::%index of event-slot + 1%}
+					set {shop::%{_n::2}%::command.%{_n::3}%::*} to {shop::%{_n::2}%::command.%{_n::3}%::*}
+					send "{@a} %{_a::2}% 을(를) 제거하였습니다."
+					OpenCommandSet({_n::2},{_n::3},player)
+					stop
+				else:
+					set {shop::&::setcommand::%player%::*} to {_a::1}, {_n::2}, {_n::3} and index of event-slot + 1
+			if size of {shop::%{_n::2}%::command.%{_n::3}%::*} > 35:
+				send "{@a} 더이상 커맨드를 추가할수 없습니다."
+				delete {shop::&::setcommand::%player%::*}
+				stop				
+			send "{@a} &f커맨드를 입력하세요. &7(슬래쉬포함) '&c취소&f' 를 입력하면 입력이 취소됩니다." to player	
+			wait a tick
+			close player's inventory
 	else if name of player's top inventory contains "{@c2}":
 		cancel event
 		event-inventory is player's top inventory
 		set {_n} to name of player's top inventory
 		set {_n::*} to {_n} split by "{@c2}"
+		if {shop::%{_n::2}%::command.%{_slot}%::*} is set:
+			loop {shop::%{_n::2}%::command.%{_slot}%::*}:
+				set {_a::*} to loop-value split by "%nl%"
+				replace all "\p" with "%player%" in {_a::2}
+				if {_a::1} is "player":
+					execute player command "%{_a::2}%"
+				else if {_a::1} is "op":
+					execute op command "%{_a::2}%"					
+				else if {_a::1} is "console":
+					execute console command "%{_a::2}%"					
+		if {shop::%{_n::2}%::openshop.%{_slot}%} is set:
+			OpenShopDisplayItem({shop::%{_n::2}%::openshop.%{_slot}%}, "%{shop::%{shop::%{_n::2}%::openshop.%{_slot}%}%::name}%{@c2}%{shop::%{_n::2}%::openshop.%{_slot}%}%", player)
 		if "%click type%" contains "left":
 			set {_j} to 9999
-			loop {shop::%{_n::2}%::price.buy::%index of event-slot%::*}:
+			loop {shop::%{_n::2}%::price.buy::%{_slot}%::*}:
 				set {_v} to loop-value
 				if "%name of {_v}%" contains "{@c}":
 					set {_nl} to "%name of {_v}%"
@@ -366,35 +439,66 @@ on inventory click:
 				if {_j} is 0:
 					set {_j} to 999
 				if {_j} < 64:
-					BuyShopItem({_n::2},"%index of event-slot%" parsed as integer,{_j},player)
+					BuyShopItem({_n::2},"%{_slot}%" parsed as integer,{_j},player)
 				else:
-					BuyShopItem({_n::2},"%index of event-slot%" parsed as integer,64,player)
+					BuyShopItem({_n::2},"%{_slot}%" parsed as integer,64,player)
 				stop
-			BuyShopItem({_n::2},"%index of event-slot%" parsed as integer,1,player)
+			BuyShopItem({_n::2},"%{_slot}%" parsed as integer,1,player)
 		else if "%click type%" contains "right":
 			if "%click type%" contains "shift":
-				set {_a} to amount of {shop::%{_n::2}%::item::%index of event-slot%} in player's inventory
+				set {_a} to amount of {shop::%{_n::2}%::item::%{_slot}%} in player's inventory
 				if {_a} is 0:
 					set {_a} to 999
 				if {_a} < 64:
-					SellShopItem({_n::2},"%index of event-slot%" parsed as integer,"%{_a}%" parsed as integer ,player)
+					SellShopItem({_n::2},"%{_slot}%" parsed as integer,"%{_a}%" parsed as integer ,player)
 				else:
-					SellShopItem({_n::2},"%index of event-slot%" parsed as integer,64,player)
+					SellShopItem({_n::2},"%{_slot}%" parsed as integer,64,player)
 				stop
-			SellShopItem({_n::2},"%index of event-slot%" parsed as integer,1,player)				
-on chat:				
-	if {shop.guiname.%player%} is set:
+			SellShopItem({_n::2},"%{_slot}%" parsed as integer,1,player)
+on chat:		
+	if {shop::&::guiname::%player%} is set:
 		if message is "취소":
 			send "{@a} GUI이름설정을 &c취소&f하였습니다."
 		else:
-			send "{@a} 상점 %{shop.guiname.%player%}%의 GUI이름을 '%colored message%&f' (으)로 설정하였습니다."
-			set {shop.%{shop.guiname.%player%}%.name} to colored message
-		delete {shop.guiname.%player%}
+			send "{@a} 상점 %{shop::&::guiname::%player%}%의 GUI이름을 '%colored message%&f' (으)로 설정하였습니다."
+			set {shop::%{shop::&::guiname::%player%}%::name} to colored message
+		OpenShopSet("%{shop::&::guiname::%player%}%",player)	
+		delete {shop::&::guiname::%player%}
 		cancel event
+	else if {shop::&::openshop::%player%::*} is set:
+		if message is "취소":
+			send "{@a} 설정을 &c취소&f하였습니다."
+		else:
+			if {shop::%message%} is set:
+				send "{@a} 오픈할 상점을 '%message%&f' (으)로 설정하였습니다."
+				set {shop::%{shop::&::openshop::%player%::1}%::openshop.%{shop::&::openshop::%player%::2}%} to message
+			else:	
+				send "{@a} %message% 은(는) 존재하지않는 상점입니다."		
+		OpenShopPrice({shop::&::openshop::%player%::1},{shop::&::openshop::%player%::2},player)		
+		delete {shop::&::openshop::%player%::*}
+		cancel event
+on command:
+	if {shop::&::setcommand::%player%::*} is set:
+		if full command is "취소":
+			send "{@a} 설정을 &c취소&f하였습니다."
+		else if {shop::&::setcommand::%player%::4} is set:
+			send "{@a} 커맨드를 '/%full command%&f' (으)로 수정하였습니다."
+			set {shop::%{shop::&::setcommand::%player%::2}%::command.%{shop::&::setcommand::%player%::3}%::%{shop::&::setcommand::%player%::4}%} to "%{shop::&::setcommand::%player%::1}%%nl%/%full command%"
+		else:
+			send "{@a} 커맨드 '/%full command%&f' (을)를 추가하였습니다."
+			add "%{shop::&::setcommand::%player%::1}%%nl%/%full command%" to {shop::%{shop::&::setcommand::%player%::2}%::command.%{shop::&::setcommand::%player%::3}%::*}
+		OpenCommandSet({shop::&::setcommand::%player%::2},{shop::&::setcommand::%player%::3},player)	
+		delete {shop::&::setcommand::%player%::*}
+		cancel event		
 on inventory close:
 	if name of event-inventory contains "{@a}":
 		wait a tick
 		set {_n::*} to name of event-inventory split by " {@c}- "
+		if name of event-inventory contains "{@a} 커맨드설정":
+			if {shop::&::setcommand::%player%::*} is set:
+				stop
+			if name of player's top inventory is "container.crafting":	
+				OpenShopPrice({_n::2},{_n::3},player)		
 		if name of event-inventory contains "{@a} 아이템설정":
 			loop {shop::%{_n::2}%} * 9 times:
 				if slot loop-num - 1 of event-inventory is air:
@@ -403,12 +507,14 @@ on inventory close:
 					set {shop::%{_n::2}%::item::%loop-num - 1%} to slot loop-num - 1 of event-inventory
 			send "{@a} 아이템이 설정되었습니다." to player
 			OpenShopSet("%{_n::2}%",player)
-		if name of event-inventory contains "{@a} 아이템작업설정":	
+		if name of event-inventory contains "{@a} 작업아이템설정":	
 			if name of player's top inventory is "container.crafting":
 				OpenShopSet("%{_n::2}%",player)
-		else if name of event-inventory contains "{@a} 가격설정":
+		else if name of event-inventory contains "{@a} 아이템작업설정":
+			if {shop::&::openshop::%player%::*} is set:
+				stop
 			if name of player's top inventory is "container.crafting":
-				OpenShopDisplayItem({_n::2}, "{@a} 아이템작업설정 {@c}- %{_n::2}%",player)
+				OpenShopDisplayItem({_n::2}, "{@a} 작업아이템설정 {@c}- %{_n::2}%",player)
 		if name of event-inventory contains "{@a} 판매가격설정":
 			set {_name2} to "sell"
 		if name of event-inventory contains "{@a} 구매가격설정":
@@ -418,12 +524,10 @@ on inventory close:
 				send "{@a} 구매가격을 설정하였습니다." to player
 			else:
 				send "{@a} 판매가격을 설정하였습니다." to player
-			set {_slot} to uncolored {_n::3}
-			replace all " " with "" in {_slot}
-			delete {shop::%{_n::2}%::price.%{_name2}%::%{_slot}%::*}
+			delete {shop::%{_n::2}%::price.%{_name2}%::%{_n::3}%::*}
 			loop all items in event-inventory:
-				add item amount of loop-value of loop-value to {shop::%{_n::2}%::price.%{_name2}%::%{_slot}%::*}
-			if size of {shop::%{_n::2}%::price.%{_name2}%::%{_slot}%::*} is 0:
-				delete {shop::%{_n::2}%::price.%{_name2}%::%{_slot}%::*}
+				add item amount of loop-value of loop-value to {shop::%{_n::2}%::price.%{_name2}%::%{_n::3}%::*}
+			if size of {shop::%{_n::2}%::price.%{_name2}%::%{_n::3}%::*} is 0:
+				delete {shop::%{_n::2}%::price.%{_name2}%::%{_n::3}%::*}
 			if name of player's top inventory is "container.crafting":
-				OpenShopPrice({_n::2},"%{_slot}%",player)
+				OpenShopPrice({_n::2},{_n::3},player)
