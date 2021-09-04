@@ -37,8 +37,8 @@ command /상점수표 [<text>] [<text>]:
 			stop
 		if arg 1 or arg 2 is not set:
 			send "&b----------[ &f수표 &b]----------"
-			send "{@s} /수표 <포인트> <포인트이름>"
-			send "{@s} /수표 포인트목록"
+			send "{@s} /상점수표 <포인트> <포인트이름>"
+			send "{@s} /상점수표 포인트목록"
 			stop	
 		if {shop::point::%arg-2%} is not set:
 			send "{@a} %arg-2%는 존재하지 않는 포인트입니다."
