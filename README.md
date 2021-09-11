@@ -7,13 +7,13 @@
 
 [개발환경]
 
-Java : jre1.8.0_281 build 1.8.0_281-b09
+Java : Java 16 (OpenJDK 64-Bit Server VM 16.0.2+7)
 
-Bukkit : git-CatServer-1.12.26d1cace (MC: 1.12.2)
+Bukkit : git-Paper-229 (MC1.17.1)
 
-Skript : 2.2-dev37c
+Skript : 2.6-beta3
 
-Add-on : Skellett 1.9.6b
+Add-on : x
 
 [선택]
 
