@@ -141,7 +141,7 @@ function SellShopItem(name:text,slot:integer,amount:integer,p:player):
 		if "%name of {_v}%" contains "&6[수표]":
 			set {_nl} to "%name of {_v}%"
 			replace "&6[수표] &f" with "" in {_nl}
-			set {_price::*} to {_nl} split by "{@c}"
+			set {_price::*} to {_nl} split by "&f"
 			add "%uncolored {_price::1}%" parsed as integer to {_p::%{_price::2}%}
 			remove loop-value from {_item::*}	
 	add {_item::*} to {_gui}
@@ -415,9 +415,9 @@ on inventory click:
 			set {_j} to 9999
 			loop {shop::%{_n::2}%::price.buy::%{_slot}%::*}:
 				set {_v} to loop-value
-				if "%name of {_v}%" contains "{@c}":
+				if "%name of {_v}%" contains "&6[수표]":
 					set {_nl} to "%name of {_v}%"
-					set {_price::*} to {_nl} split by "{@c}"
+					set {_price::*} to {_nl} split by "&f"
 					add "%uncolored {_price::1}%" parsed as integer to {_p::%{_price::2}%}
 					remove loop-value from {_item::*}
 				else:	
