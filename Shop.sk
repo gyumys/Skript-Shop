@@ -48,6 +48,7 @@ command /상점수표 [<text>] [<text>]:
 			give paper named "&6[수표] &f%arg-1%&f%arg-2%" with lore "" and "&7우클릭시 %arg-1% %arg-2%를 지급받습니다." to player
 on rightclick with paper:
 	if name of event-item contains "&6[수표]": #1.17.1 if 문에서 색코드를 인식못하여 [수표] 문구로 수표라는것을 인식하게함.
+		cancel event
 		set {_n} to name of event-item
 		replace "&6[수표] &f" with "" in {_n}
 		set {_point::*} to {_n} split by "&f"
